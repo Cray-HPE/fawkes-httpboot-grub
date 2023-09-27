@@ -98,7 +98,7 @@ build_grub_images_x86_64:
             -O x86_64-efi \
             --modules="configfile echo efinet fat help http linux ls net normal part_gpt part_msdos" \
             -o "${BUILD_DIR}/BUILD/bootx64.efi" \
-            "boot/grub/grub.cfg=grub-minimial.cfg" \
+            "boot/grub/grub.cfg=grub-minimal.cfg" \
     )
 
 .PHONY: build_grub_images_arm64
@@ -110,7 +110,7 @@ build_grub_images_arm64:
             -O arm64-efi \
             --modules="configfile echo efinet fat help http linux ls net normal part_gpt part_msdos" \
             -o "${BUILD_DIR}/BUILD/bootaa64.efi" \
-            "boot/grub/grub.cfg=grub-minimial.cfg" \
+            "boot/grub/grub.cfg=grub-minimal.cfg" \
     )
 
 .PHONY: clean
