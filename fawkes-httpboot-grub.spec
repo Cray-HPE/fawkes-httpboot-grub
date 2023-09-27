@@ -29,6 +29,8 @@ Version:   %(echo $VERSION)
 Release:   1
 Source:    %{name}-%{version}.tar.bz2
 Vendor:    Cray Inc.
+BuildRequires: bison
+BuildRequires: flex
 
 %define binx86_64 bootx64.efi
 %define binarm64 bootaa64.efi
@@ -48,6 +50,6 @@ Grub binaries for http booting x86_64 and arm64. Contents are installed into %{w
 %files
 %defattr(-,root,root)
 %license LICENSE
-%doc README.asc
+%doc README.adoc
 %attr(-,dnsmasq,tftp) %{wwwbootdir}%(basename %{binx86_64})
 %attr(-,dnsmasq,tftp) %{wwwbootdir}%(basename %{binarm64})

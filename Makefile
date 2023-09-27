@@ -44,6 +44,14 @@ build_vendor: setup_grub \
               build_grub_images_x86_64 \
               build_grub_images_arm64
 
+.PHONY: setup_suse
+setup_suse:
+	zypper refresh
+	zypper install \
+           bison \
+           flex \
+           
+
 .PHONY: setup_debian
 setup_debian:
 	sudo apt update
