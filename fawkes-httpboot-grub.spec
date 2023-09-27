@@ -30,8 +30,8 @@ Release:   1
 Source:    %{name}-%{version}.tar.bz2
 Vendor:    Cray Inc.
 
-%define binx86_64 artifacts/bootx64.efi
-%define binarm64 artifacts/bootaa64.efi
+%define binx86_64 bootx64.efi
+%define binarm64 bootaa64.efi
 %define wwwbootdir /var/www/boot/
 
 %description
@@ -39,15 +39,11 @@ Grub binaries for http booting x86_64 and arm64. Contents are installed into %{w
 
 %prep
 %setup -q
-echo 'DEBUG BEGIN'
-pwd
-find . -name bootx64.efi
-find . -name bootaa64.efi
-echo 'DEBUG END'
-%{__mkdir} %{buildroot}
+
+%install
 %{__install} -m 755 -d %{buildroot}%{wwwbootdir}
-%{__install} -m 644 %{binx86_64} %{buildroot}%{wwwbootdir}
-%{__install} -m 644 %{binarm64} %{buildroot}%{wwwbootdir}
+%{__install} -m 644 %{_builddir}/%{binx86_64} %{buildroot}%{wwwbootdir}
+%{__install} -m 644 %{_builddir}/%{binarm64} %{buildroot}%{wwwbootdir}
 
 %files
 %defattr(-,root,root)
@@ -55,5 +51,3 @@ echo 'DEBUG END'
 %doc README.asc
 %attr(-,dnsmasq,tftp) %{wwwbootdir}%(basename %{binx86_64})
 %attr(-,dnsmasq,tftp) %{wwwbootdir}%(basename %{binarm64})
-
-%changelog
