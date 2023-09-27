@@ -21,14 +21,14 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 #
-Name: %(echo $NAME)
-License: GPLv2
-Summary: Grub binaries for http booting x86_64 and arm64
+Name:      %(echo $GIT_REPO_NAME)
+License:   GPLv2
+Summary:   Grub binaries for http booting x86_64 and arm64
 BuildArch: noarch
-Version: %(echo $VERSION)
-Release: 1
-Source: %{name}-%{version}.tar.bz2
-Vendor: Cray Inc.
+Version:   %(echo $VERSION)
+Release:   1
+Source:    %{name}-%{version}.tar.bz2
+Vendor:    Cray Inc.
 
 %define binx86_64 artifacts/bootx64.efi
 %define binarm64 artifacts/bootaa64.efi
