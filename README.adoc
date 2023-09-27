@@ -1,0 +1,56 @@
+= Grub binaries
+Grub binaries for http booting x86_64 and arm64 hardware. The Grub binaries provided include all of the available Grub modules, so they may also be used to recover a system by disk booting, tftp booting, etc.
+
+== Build
+The `setup_debian` Make target is provided to install the required build dependencies in a Debian environment. If you aren't building in a Debian environment, the equivalent build tools will need to be installed for your environment.
+
+=== Build steps
+[source,bash]
+----
+make setup_debian
+make prepare
+make rpm
+----
+
+== Grub config
+The following grub config is built into the `bootx64.efi` and `bootaa64.efi` binaries, therefore does NOT need to be provided. An additional `grub.cfg` will need to be provided via http at the path indicated in `grub-minimal.cfg`. Ex. (http://bootserver/boot/grub.cfg).
+
+.grub-minimal.cfg
+[source,bash]
+----
+net_dhcp
+configfile (http,$net_default_server)/boot/grub.cfg
+----
+
+.Example grub.cfg
+[source,bash]
+----
+set timeout=2
+set gfxmode=auto
+set gfxpayload=keep
+set lang=en_US
+
+if [ "$grub_cpu" == "arm64" ]; then
+  set default=2
+else
+  set default=1
+  insmod linuxefi
+fi
+
+menuentry 'HTTP Boot x86_64' {
+  echo 'Loading kernel ...'
+  linuxefi (http,bootserver)/ephemeral/boot/x86_64/loader/kernel biosdevname=1 console=tty0 console=ttyS0,115200 crashkernel=360M iommu=pt ip=dhcp pcie_ports=native psi=1 rd.live.ram=1 rd.md.conf=0 rd.md=0 rd.neednet=1 rd.peerdns=1 rd.shell root=live:http://bootserver/nexus/repository/os-images/hypervisor-x86_64.iso split_lock_detect=off transparent_hugepage=never
+  echo 'Loading initrd ...'
+  initrdefi (http,bootserver)/ephemeral/boot/x86_64/loader/initrd.img.xz
+}
+
+menuentry 'HTTP Boot arm64' {
+  echo 'Loading kernel ...'
+  linux (http,bootserver)/ephemeral/boot/arm64/loader/kernel biosdevname=1 console=tty0 console=ttyS0,115200 crashkernel=360M iommu=pt ip=dhcp pcie_ports=native psi=1 rd.live.ram=1 rd.md.conf=0 rd.md=0 rd.neednet=1 rd.peerdns=1 rd.shell root=live:http://bootserver/nexus/repository/os-images/hypervisor-arm64.iso split_lock_detect=off transparent_hugepage=never
+  echo 'Loading initrd ...'
+  initrd (http,bootserver)/ephemeral/boot/arm64/loader/initrd.img.xz
+}
+----
+
+== Resources
+link:https://git.savannah.gnu.org/git/grub.git[Grub source]

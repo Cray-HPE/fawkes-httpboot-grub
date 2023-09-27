@@ -1,7 +1,39 @@
+/*
+ *
+ *  MIT License
+ *
+ *  (C) Copyright 2022-2023 Hewlett Packard Enterprise Development LP
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a
+ *  copy of this software and associated documentation files (the "Software"),
+ *  to deal in the Software without restriction, including without limitation
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *  and/or sell copies of the Software, and to permit persons to whom the
+ *  Software is furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included
+ *  in all copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ *  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ *  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ *  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *  OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
 @Library('csm-shared-library') _
 
-def sleVersion = '15.3'
+// Disable pr-merge builds; not used.
+if (env.BRANCH_NAME ==~ ~"^PR-\\d+") {
+    currentBuild.result = 'SUCCESS'
+    echo "Pull-Requests are not built; this is a no-op build."
+    return
+}
+
 def isStable = env.TAG_NAME != null || env.BRANCH_NAME == 'main' ? true : false
+
 pipeline {
   agent {
     label "metal-gcp-builder"
@@ -15,19 +47,19 @@ pipeline {
   }
 
   environment {
-    BUILD_METADATA = getRpmRevision(isStable: isStable)
     GIT_REPO_NAME = getRepoName()
+    VERSION = sh(returnStdout: true, script: "git describe --tags | tr -s '-' '~' | sed 's/^v//'").trim()
+    BUILD_METADATA = getRpmRevision(isStable: isStable)
   }
 
   stages {
-    stage("Prepare: RPM") {
-      agent {
-        docker {
-          label 'docker'
-          reuseNode true
-          image "artifactory.algol60.net/csm-docker/stable/csm-docker-sle:${sleVersion}"
-        }
+    stage('Install: dependencies') {
+      steps {
+        sh "make setup_debian"
       }
+    }
+    
+    stage("Prepare: RPM") {
       steps {
         runLibraryScript("addRpmMetaData.sh", "${env.GIT_REPO_NAME}.spec")
         sh "make prepare"
@@ -35,25 +67,16 @@ pipeline {
     }
 
     stage('Build: RPM') {
-      agent {
-        docker {
-          label 'docker'
-          reuseNode true
-          image "artifactory.algol60.net/csm-docker/stable/csm-docker-sle:${sleVersion}"
-        }
-      }
       steps {
         sh "make rpm"
       }
     }
 
-    stage('Publish') {
+    stage('Publish: RPM') {
       steps {
         script {
-          publishCsmRpms(component: env.GIT_REPO_NAME, pattern: "dist/rpmbuild/RPMS/noarch/*.rpm", os: "sle-15sp2", arch: "noarch", isStable: isStable)
-          publishCsmRpms(component: env.GIT_REPO_NAME, pattern: "dist/rpmbuild/RPMS/noarch/*.rpm", os: "sle-15sp3", arch: "noarch", isStable: isStable)
-          publishCsmRpms(component: env.GIT_REPO_NAME, pattern: "dist/rpmbuild/SRPMS/*.rpm", os: "sle-15sp2", arch: "src", isStable: isStable)
-          publishCsmRpms(component: env.GIT_REPO_NAME, pattern: "dist/rpmbuild/SRPMS/*.rpm", os: "sle-15sp3", arch: "src", isStable: isStable)
+          publishCsmRpms(component: env.GIT_REPO_NAME, pattern: "dist/rpmbuild/RPMS/noarch/*.rpm", os: "noos", arch: "noarch", isStable: isStable)
+          publishCsmRpms(component: env.GIT_REPO_NAME, pattern: "dist/rpmbuild/SRPMS/*.rpm", os: "noos", arch: "src", isStable: isStable)
         }
       }
     }
