@@ -48,7 +48,7 @@ pipeline {
 
   environment {
     GIT_REPO_NAME = getRepoName()
-    VERSION = sh(returnStdout: true, script: "git describe --tags | tr -s '-' '~' | sed 's/^v//'").trim()
+    VERSION = sh(returnStdout: true, script: "{ git describe --tags || echo none; } | tr -s '-' '~' | sed 's/^v//'").trim()
     BUILD_METADATA = getRpmRevision(isStable: isStable)
   }
 

@@ -39,11 +39,15 @@ Grub binaries for http booting x86_64 and arm64. Contents are installed into %{w
 
 %prep
 %setup -q
+echo 'DEBUG BEGIN'
+pwd
+find . -name bootx64.efi
+find . -name bootaa64.efi
+echo 'DEBUG END'
 %{__mkdir} %{buildroot}
 %{__install} -m 755 -d %{buildroot}%{wwwbootdir}
 %{__install} -m 644 %{binx86_64} %{buildroot}%{wwwbootdir}
 %{__install} -m 644 %{binarm64} %{buildroot}%{wwwbootdir}
-%{__install} -m 755 -d %{buildroot}%{sourcedir}
 
 %files
 %defattr(-,root,root)

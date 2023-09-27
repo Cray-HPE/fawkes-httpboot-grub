@@ -27,7 +27,7 @@ GIT_REPO_NAME := $(basename $(git rev-parse --show-toplevel))
 endif
 
 ifeq ($(VERSION),)
-VERSION := $(shell git describe --tags | tr -s '-' '~' | sed 's/^v//')
+VERSION := $(shell git describe --tags || echo -n 'none'; | tr -s '-' '~' | sed 's/^v//')
 endif
 
 # FIXME: When does this switch to release or when it is omitted?
