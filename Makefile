@@ -36,8 +36,10 @@ BUILD_DIR ?= $(PWD)/dist/rpmbuild
 SOURCE_PATH := ${BUILD_DIR}/SOURCES/${SOURCE_NAME}-${VERSION}.tar.bz2
 VENDOR := vendor/git.savannah.gnu.org/git/grub
 
-
 rpm: prepare rpm_package_source rpm_build_source build_vendor rpm_build
+rpm_setup: prepare rpm_package_source rpm_build_source setup_grub
+
+.PHONY build_vendor
 build_vendor: setup_grub \
               build_grub_x86_64 \
               build_grub_arm64 \

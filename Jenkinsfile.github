@@ -67,7 +67,10 @@ pipeline {
 
     stage('Build: RPM') {
       steps {
-        sh "make rpm"
+        sh "make rpm_setup"
+        sh "make -j 2 build_grub_x86_64 build_grub_arm64"
+        sh "make -j 2 build_grub_images_x86_64 build_grub_images_arm64"
+        sh "make rpm_build"
       }
     }
 
